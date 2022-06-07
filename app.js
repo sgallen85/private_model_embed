@@ -101,13 +101,13 @@ app.get('/get-access', async (req, res) => {
     const accessRes = await fetch(modelApiEndpoint, modelFetchInfo);
     const accessData = await accessRes.json();
 
-    if(verbose)
-      console.log(`    Received from ${modelApiEndpoint}: ${accessData.data.createPrivateModelAccessLink.link}`)
-
     if(accessRes.error){
       res.status(500).send({"error": accessRes.error});
       return;
     }
+    
+    if(verbose)
+      console.log(`    Received from ${modelApiEndpoint}: ${accessData.data.createPrivateModelAccessLink.link}`)
 
     res.send(accessData.data.createPrivateModelAccessLink);
   }catch(e){
