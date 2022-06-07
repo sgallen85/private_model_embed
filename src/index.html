@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Private Model Embed Sample Application</title>
+    <link href="style.css" type="text/css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="showcase-container">
+      <div class="controls">
+        <button class="btn-secure">Get Secure Access</button>
+        <button class="btn-revoke">Revoke Secure Access</button>
+        <iframe
+        class="showcase-iframe"
+        allow="fullscreen; xr-spatial-tracking"
+        frameborder="0"
+        ></iframe>
+        <h3 id="iframe-src"></h3>
+      </div>
+    </div>
+  </body>
+  <script src="index.js"></script>
+</html>
