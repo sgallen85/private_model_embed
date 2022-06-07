@@ -1,0 +1,11 @@
+{
+  "name": "private_model_embed",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Ryan Mauldin",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  }
+}
