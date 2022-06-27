@@ -12,7 +12,7 @@ const apiHost = 'api.matterport.com';
 // direct string mutations provided, but feel free to look into a GraphQL client
 const genPrivateLinkMutation = `
 mutation createLink($modelId: ID!, $clientId: ID!, $clientSecret: String!, $validFor: Duration){
-  createPrivateModelAccessLink(
+  createPrivateModelEmbedLink(
     modelId: $modelId
     clientId: $clientId
     clientSecret: $clientSecret
@@ -28,7 +28,7 @@ mutation createLink($modelId: ID!, $clientId: ID!, $clientSecret: String!, $vali
 
 const revokeAccessTokenMutation = `
 mutation deleteToken($clientId: ID!, $clientSecret: String!, $accessToken: ID!) {
-  deletePrivateModelAccessToken(
+  deletePrivateModelEmbedToken(
     clientId: $clientId
     clientSecret: $clientSecret
     accessToken: $accessToken
