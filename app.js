@@ -7,7 +7,7 @@ const port = 8000;
 
 const verbose = true;
 const validFor = "24h";
-const apiHost = 'qa3-api.matterport.com';
+const apiHost = 'api.matterport.com';
 
 // direct string mutations provided, but feel free to look into a GraphQL client
 const genPrivateLinkMutation = `

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', init);
 
-const apiHost = 'qa3-app.matterport.com';
+const apiHost = 'api.matterport.com';
 const secureBtn = document.querySelector('.btn-secure');
 const revokeBtn = document.querySelector('.btn-revoke');
 const iframe = document.querySelector('.showcase-iframe');
