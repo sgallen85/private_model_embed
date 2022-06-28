@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', init);
 
 const apiHost = 'api.matterport.com';
+const modelId = 'cHNF6PcUKCd';
 const secureBtn = document.querySelector('.btn-secure');
 const revokeBtn = document.querySelector('.btn-revoke');
 const iframe = document.querySelector('.showcase-iframe');
 const iframeReport = document.getElementById('iframe-src');
 
 function init(){
-  let iframeUrl = new URL(`https://${apiHost}/show/?m=cHNF6PcUKCd`);
+  let iframeUrl = new URL(`https://${apiHost}/show/?m=${modelId}`);
   iframe.src = iframeUrl.href;
   iframeReport.innerText = `iframe src: ${iframeUrl.href}`;
 

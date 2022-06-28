@@ -57,7 +57,7 @@ app.get('/get-access', async (req, res) => {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       },
-      body: new URLSearchParams({
+      body: JSON.stringify({
         grant_type: "client_credentials",
         client_id: client_id,
         client_secret: client_secret,
