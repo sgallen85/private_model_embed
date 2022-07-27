@@ -1,13 +1,13 @@
-const express = require('express');
-const path = require('path');
-const fetch = require('node-fetch');
-const { client_id, client_secret } = require('./config');
+const express = require("express");
+const path = require("path");
+const fetch = require("node-fetch");
+const { client_id, client_secret } = require("./config");
 const app = express();
 const port = 8000;
 
 const verbose = true;
 const validFor = "24h";
-const apiHost = 'api.matterport.com';
+const apiHost = "api.matterport.com";
 
 // direct string mutations provided, but feel free to look into a GraphQL client
 const genPrivateLinkMutation = `
@@ -38,51 +38,56 @@ mutation deleteToken($clientId: ID!, $clientSecret: String!, $accessToken: ID!) 
 
 app.use(express.static(__dirname + "/src"));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname + '/src/index.html'));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname + "/src/index.html"));
 });
 
-app.get('/get-access', async (req, res) => {
+app.get("/get-access", async (req, res) => {
   const { m } = req.query;
-  if(!m){
+  if (!m) {
     res.status(500).send({
-      error: "No model ID provided"
+      error: "No model ID provided",
     });
     return;
   }
-  try{
+  try {
+    var urlencodedBody = new URLSearchParams();
+    urlencodedBody.append("grant_type", "client_credentials");
+    urlencodedBody.append("client_id", client_id);
+    urlencodedBody.append("client_secret", client_secret);
+
     const tokenEndpoint = `https://${apiHost}/api/oauth/token`;
     const tokenFetchInfo = {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify({
-        grant_type: "client_credentials",
-        client_id: client_id,
-        client_secret: client_secret,
-      }),
+      body: urlencodedBody,
+    };
+
+    if (verbose) {
+      console.log(`1.  Fetching Access token from ${tokenEndpoint}`);
     }
 
-    if(verbose)
-      console.log(`1.  Fetching Access token from ${tokenEndpoint}`);
-    
     const tokenRes = await fetch(tokenEndpoint, tokenFetchInfo);
     const tokenInfo = await tokenRes.json();
-    if(tokenInfo.error){
-      res.status(500).send({"error": tokenInfo.error});
+    if (tokenInfo.error) {
+      res.status(500).send({ error: tokenInfo.error });
       return;
-    } 
+    }
 
-    if(verbose)
-      console.log(`    Received from ${tokenEndpoint}: ${tokenInfo.access_token}`);
+    if (verbose) {
+      console.log(
+        `    Received from ${tokenEndpoint}: ${JSON.stringify(tokenInfo)}`
+      );
+    }
 
     const modelApiEndpoint = `https://${apiHost}/api/models/graph`;
     const modelFetchInfo = {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${tokenInfo.access_token}`,
-        "Content-Type": "application/json"
+        Authorization: `Bearer ${tokenInfo.access_token}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         query: genPrivateLinkMutation,
@@ -90,75 +95,92 @@ app.get('/get-access', async (req, res) => {
           modelId: m,
           clientId: client_id,
           clientSecret: client_secret,
-          validFor: validFor
-        }
-      })
-    }
+          validFor: validFor,
+        },
+      }),
+    };
 
-    if(verbose)
-      console.log(`2.  Now fetching authorized model link from ${modelApiEndpoint}`)
+    if (verbose) {
+      console.log(
+        `2.  Now fetching authorized model link from ${modelApiEndpoint}`
+      );
+    }
 
     const accessRes = await fetch(modelApiEndpoint, modelFetchInfo);
     const accessData = await accessRes.json();
 
-    if(accessRes.error){
-      res.status(500).send({"error": accessRes.error});
+    if (accessRes.error) {
+      res.status(500).send({ error: accessRes.error });
+      console.log(accessRes)
       return;
     }
-    
-    if(verbose)
-      console.log(`    Received from ${modelApiEndpoint}: ${accessData.data.createPrivateModelAccessLink.link}`)
+    if (accessData.errors) {
+      res.send(accessData.errors);
+      console.log(accessData)
+      return;
+    }
+    if (verbose) {
+      console.log(
+        `    Received from ${modelApiEndpoint}: ${accessData.data.createPrivateModelEmbedLink.link}`
+      );
+    }
 
-    res.send(accessData.data.createPrivateModelAccessLink);
-  }catch(e){
+    res.send(accessData.data.createPrivateModelEmbedLink);
+  } catch (e) {
     console.log(e);
     res.status(500).send({
-      error: e
+      error: e,
     });
-  } 
-
+  }
 });
 
-app.get('/revoke-access', async (req, res) => {
+app.get("/revoke-access", async (req, res) => {
   const { access } = req.query;
-  if(!access){
+  if (!access) {
     res.status(500).send({
-      error: "No access token provided"
+      error: "No access token provided",
     });
     return;
   }
   let access_token = access;
-  if(access_token.startsWith("Bearer"))
-    access_token = access.slice(7);
+  if (access_token.startsWith("Bearer")) access_token = access.slice(7);
 
   const modelApiEndpoint = `https://${apiHost}/api/models/graph`;
-  
+
   const revokeFetchInfo = {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${access_token}`,
-      "Content-Type": "application/json"
+      Authorization: `Bearer ${access_token}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       query: revokeAccessTokenMutation,
       variables: {
         clientId: client_id,
         clientSecret: client_secret,
-        accessToken: access_token
-      }
-    })
-  }
+        accessToken: access_token,
+      },
+    }),
+  };
 
-  if(verbose)
-    console.log(`Requesting revocation of access token ${access_token} from ${modelApiEndpoint}`);
+  if (verbose) {
+    console.log(
+      `Requesting revocation of access token ${access_token} from ${modelApiEndpoint}`
+    );
+  }
 
   const result = await fetch(modelApiEndpoint, revokeFetchInfo);
   const revokeRes = await result.json();
-  
-  if(verbose)
-      console.log(`Received from ${modelApiEndpoint}: ${JSON.stringify(revokeRes)}`)
+
+  if (verbose) {
+    console.log(
+      `Received from ${modelApiEndpoint}: ${JSON.stringify(revokeRes)}`
+    );
+  }
 
   res.send();
 });
 
-app.listen(port, () => {console.log(`Listening on port ${port}...`)});
+app.listen(port, () => {
+  console.log(`Listening on port ${port}...`);
+});
