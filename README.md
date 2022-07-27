@@ -11,6 +11,7 @@ Information is then passed to the browser to embed the Matterport iframe.
 
 1. ```yarn install```
 2. Edit ```config.js``` with the OAuth application's client ID and secret.
+3. Edit ```src/index.js``` 'modelId' with a model SID managed by your org
 
 ## Running
 
